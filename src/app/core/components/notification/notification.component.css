@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.notification-container {
+  transition: all 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .notification-container {
+    max-width: 100%;
+  }
+}

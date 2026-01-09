@@ -1,0 +1,209 @@
+/* Design System Variables */
+:host {
+  --primary-color: #1A56DB;
+  --secondary-color: #3B82F6;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --border-color: #E5E7EB;
+  --surface-color: #F9FAFB;
+}
+
+/* Base styles */
+.empty-state {
+  font-family: 'Inter', sans-serif;
+  animation: fadeIn 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Typography scale */
+.text-lg {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem;
+}
+
+/* Font weights */
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* Custom color classes */
+.text-text-primary {
+  color: var(--text-primary);
+}
+
+.text-text-secondary {
+  color: var(--text-secondary);
+}
+
+.bg-surface {
+  background-color: var(--surface-color);
+}
+
+.bg-border {
+  background-color: var(--border-color);
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.bg-primary:hover {
+  background-color: var(--secondary-color);
+}
+
+.hover\:bg-secondary:hover {
+  background-color: var(--secondary-color);
+}
+
+.text-primary {
+  color: var(--primary-color);
+}
+
+.text-primary:hover {
+  color: var(--secondary-color);
+}
+
+.hover\:text-secondary:hover {
+  color: var(--secondary-color);
+}
+
+.focus\:ring-primary:focus {
+  --ring-color: var(--primary-color);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.empty-state svg {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Button styles */
+button {
+  transition-property: background-color, border-color, color, fill, stroke, transform, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+button:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Icon container hover effect */
+.empty-state .bg-surface:hover {
+  background-color: color-mix(in srgb, var(--primary-color) 5%, var(--surface-color));
+  transform: scale(1.05);
+}
+
+.empty-state .bg-surface {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .empty-state {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .text-lg {
+    font-size: 1rem; /* 16px */
+    line-height: 1.5rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .empty-state {
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --surface-color: #374151;
+    --border-color: #4b5563;
+  }
+
+  .empty-state .bg-surface {
+    background-color: #374151;
+  }
+
+  .empty-state .bg-surface:hover {
+    background-color: #4b5563;
+  }
+
+  .bg-border {
+    background-color: #4b5563;
+  }
+}
+
+/* Print styles */
+@media print {
+  .empty-state {
+    border: 1px solid #e5e7eb;
+    page-break-inside: avoid;
+  }
+
+  button {
+    display: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .empty-state {
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --primary-color: #0033cc;
+    --secondary-color: #0055ff;
+  }
+
+  .empty-state svg {
+    stroke-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .empty-state,
+  .empty-state svg,
+  button {
+    animation: none;
+    transition: none;
+  }
+
+  .empty-state .bg-surface:hover {
+    transform: none;
+  }
+}

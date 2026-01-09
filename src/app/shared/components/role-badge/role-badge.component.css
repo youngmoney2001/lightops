@@ -1,0 +1,296 @@
+/* Design System Variables */
+:host {
+  --role-super-admin-bg: #FBBF24;
+  --role-site-manager-bg: #1A56DB;
+  --role-veterinary-bg: #10B981;
+  --role-general-manager-bg: #8B5CF6;
+  --role-super-admin-text: #92400E;
+  --role-site-manager-text: #1E40AF;
+  --role-veterinary-text: #065F46;
+  --role-general-manager-text: #5B21B6;
+}
+
+/* Base styles */
+.role-badge {
+  font-family: 'Inter', sans-serif;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+   user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Role-specific background colors with opacity */
+.bg-role-super-admin {
+  background-color: color-mix(in srgb, var(--role-super-admin-bg) 15%, white);
+  border-color: color-mix(in srgb, var(--role-super-admin-bg) 30%, transparent);
+}
+
+.bg-role-site-manager {
+  background-color: color-mix(in srgb, var(--role-site-manager-bg) 15%, white);
+  border-color: color-mix(in srgb, var(--role-site-manager-bg) 30%, transparent);
+}
+
+.bg-role-veterinary {
+  background-color: color-mix(in srgb, var(--role-veterinary-bg) 15%, white);
+  border-color: color-mix(in srgb, var(--role-veterinary-bg) 30%, transparent);
+}
+
+.bg-role-general-manager {
+  background-color: color-mix(in srgb, var(--role-general-manager-bg) 15%, white);
+  border-color: color-mix(in srgb, var(--role-general-manager-bg) 30%, transparent);
+}
+
+/* Role-specific text colors */
+.text-yellow-900 {
+  color: var(--role-super-admin-text);
+}
+
+.text-blue-900 {
+  color: var(--role-site-manager-text);
+}
+
+.text-green-900 {
+  color: var(--role-veterinary-text);
+}
+
+.text-purple-900 {
+  color: var(--role-general-manager-text);
+}
+
+/* Typography scale */
+.text-xs {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem;
+}
+
+.text-sm {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem;
+}
+
+.text-base {
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+/* Size-specific styles */
+.role-badge:has(.h-3) {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+}
+
+.role-badge:has(.h-4) {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.role-badge:has(.h-5) {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
+
+/* Hover effects */
+.role-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.bg-role-super-admin:hover {
+  background-color: color-mix(in srgb, var(--role-super-admin-bg) 25%, white);
+}
+
+.bg-role-site-manager:hover {
+  background-color: color-mix(in srgb, var(--role-site-manager-bg) 25%, white);
+}
+
+.bg-role-veterinary:hover {
+  background-color: color-mix(in srgb, var(--role-veterinary-bg) 25%, white);
+}
+
+.bg-role-general-manager:hover {
+  background-color: color-mix(in srgb, var(--role-general-manager-bg) 25%, white);
+}
+
+/* Info button hover */
+.role-badge button:hover {
+  transform: scale(1.1);
+}
+
+.role-badge button:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.role-badge.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Tooltip styles */
+.role-badge + div {
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :host {
+    --role-super-admin-text: #FCD34D;
+    --role-site-manager-text: #93C5FD;
+    --role-veterinary-text: #A7F3D0;
+    --role-general-manager-text: #C4B5FD;
+  }
+
+  .bg-role-super-admin {
+    background-color: color-mix(in srgb, var(--role-super-admin-bg) 20%, #1f2937);
+    border-color: color-mix(in srgb, var(--role-super-admin-bg) 40%, transparent);
+  }
+
+  .bg-role-site-manager {
+    background-color: color-mix(in srgb, var(--role-site-manager-bg) 20%, #1f2937);
+    border-color: color-mix(in srgb, var(--role-site-manager-bg) 40%, transparent);
+  }
+
+  .bg-role-veterinary {
+    background-color: color-mix(in srgb, var(--role-veterinary-bg) 20%, #1f2937);
+    border-color: color-mix(in srgb, var(--role-veterinary-bg) 40%, transparent);
+  }
+
+  .bg-role-general-manager {
+    background-color: color-mix(in srgb, var(--role-general-manager-bg) 20%, #1f2937);
+    border-color: color-mix(in srgb, var(--role-general-manager-bg) 40%, transparent);
+  }
+
+  /* Tooltip in dark mode */
+  .role-badge + div {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  .role-badge + div h4 {
+    color: #f9fafb;
+  }
+
+  .role-badge + div p {
+    color: #d1d5db;
+  }
+
+  .role-badge + div .text-gray-500 {
+    color: #9ca3af;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .role-badge,
+  .role-badge:hover,
+  .role-badge button:hover,
+  .role-badge + div {
+    animation: none;
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Focus states for accessibility */
+.role-badge:focus-within {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .role-badge {
+    background-color: transparent !important;
+    color: #000 !important;
+    border: 1px solid #000 !important;
+  }
+
+  .role-badge svg {
+    display: none;
+  }
+
+  .role-badge button {
+    display: none;
+  }
+}
+
+/* Custom badge for unknown roles */
+:host ::ng-deep .role-badge:not([class*="bg-role-"]) {
+  background-color: #f3f4f6;
+  color: #374151;
+  border-color: #e5e7eb;
+}
+
+/* Additional TypeScript methods for component class */
+/*
+  // Add these methods to your component class:
+
+  showTooltip = false;
+  tooltipTimeout: any;
+
+  showTooltipInfo(event: Event): void {
+    event.stopPropagation();
+    this.showTooltip = true;
+
+    // Auto-hide after 3 seconds
+    clearTimeout(this.tooltipTimeout);
+    this.tooltipTimeout = setTimeout(() => {
+      this.showTooltip = false;
+    }, 3000);
+  }
+
+  hideTooltip(): void {
+    this.showTooltip = false;
+    clearTimeout(this.tooltipTimeout);
+  }
+
+  getRoleDescription(role: UserRole): string {
+    const descriptions: { [key: string]: string } = {
+      'super-admin': 'Accès complet à toutes les fonctionnalités du système.',
+      'site-manager': 'Gestion des opérations sur un site spécifique.',
+      'veterinary': 'Suivi médical et santé des animaux.',
+      'general-manager': 'Supervision générale de plusieurs sites.'
+    };
+    return descriptions[role] || 'Rôle personnalisé avec permissions spécifiques.';
+  }
+
+  // Add to template events:
+  // (mouseenter)="showTooltipInfo($event)"
+  // (mouseleave)="hideTooltip()"
+  // (focus)="showTooltipInfo($event)"
+  // (blur)="hideTooltip()"
+*/

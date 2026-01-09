@@ -1,0 +1,146 @@
+<div
+  *ngIf="isVisible"
+  class="error-message"
+  [ngClass]="containerClasses"
+  role="alert"
+  aria-live="assertive"
+  aria-atomic="true"
+  [attr.aria-label]="title"
+>
+  <div class="flex items-start">
+    <!-- Icon -->
+    <div *ngIf="icon" class="flex-shrink-0">
+      <div
+        class="w-5 h-5 rounded-full flex items-center justify-center"
+        [ngClass]="{
+          'bg-red-100': type === 'error',
+          'bg-yellow-100': type === 'warning',
+          'bg-blue-100': type === 'info'
+        }"
+      >
+        <svg
+          class="w-3 h-3"
+          [ngClass]="textClasses"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            [attr.d]="iconPath"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="ml-3 flex-1">
+      <div class="flex items-center justify-between">
+        <!-- Title -->
+        <h3
+          class="text-sm font-semibold"
+          [ngClass]="textClasses"
+        >
+          {{ title }}
+        </h3>
+
+        <!-- Dismiss Button -->
+        <button
+          *ngIf="dismissible"
+          type="button"
+          class="inline-flex items-center justify-center w-6 h-6 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-colors duration-150 ml-2"
+          (click)="dismiss()"
+          aria-label="Fermer"
+        >
+          <svg
+            class="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Message -->
+      <div class="mt-1">
+        <p
+          class="text-sm"
+          [ngClass]="textClasses"
+        >
+          {{ message }}
+        </p>
+      </div>
+
+      <!-- Action Buttons (Optional Extension) -->
+      <div *ngIf="type === 'error'" class="mt-3 flex space-x-3">
+        <button
+          type="button"
+          class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-150"
+        >
+          Réessayer
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-150"
+        >
+          Contacter le support
+        </button>
+      </div>
+
+      <!-- Warning Specific Actions -->
+      <div *ngIf="type === 'warning'" class="mt-3">
+        <p class="text-xs text-yellow-700">
+          Cette action peut avoir des conséquences. Veuillez vérifier vos données.
+        </p>
+      </div>
+
+      <!-- Info Specific Actions -->
+      <div *ngIf="type === 'info'" class="mt-3">
+        <button
+          type="button"
+          class="inline-flex items-center text-xs font-medium text-blue-700 hover:text-blue-800 transition-colors duration-150"
+        >
+          En savoir plus
+          <svg
+            class="ml-1 w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Bar for Auto-dismiss (Optional) -->
+  <div
+    *ngIf="dismissible"
+    class="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden"
+  >
+    <div
+      class="h-full rounded-full transition-all duration-5000 ease-linear"
+      [ngClass]="{
+        'bg-red-500': type === 'error',
+        'bg-yellow-500': type === 'warning',
+        'bg-blue-500': type === 'info'
+      }"
+    ></div>
+  </div>
+</div>

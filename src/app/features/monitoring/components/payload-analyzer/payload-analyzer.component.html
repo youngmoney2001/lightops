@@ -1,0 +1,252 @@
+<div class="payload-analyzer p-6 space-y-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Analyseur de Payload Technique</h1>
+      <p class="text-gray-600 mt-1">Décodage et analyse avancée des payloads LoRaWAN</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="loadSamplePayload()">
+      <mat-icon>play_arrow</mat-icon>
+      Charger Exemple
+    </button>
+  </div>
+
+  <!-- Payload Input -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Saisie du Payload</mat-card-title>
+      <mat-card-subtitle>Entrez un payload hexadécimal LoRaWAN à analyser</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="flex space-x-4">
+        <mat-form-field class="flex-1">
+          <mat-label>Payload Hexadécimal</mat-label>
+          <input matInput [(ngModel)]="inputPayload" placeholder="011d9000000309026a83f905c7433628695d116d">
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="analyzeCustomPayload()">
+          <mat-icon>search</mat-icon>
+          Analyser
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Analysis Results -->
+  <div *ngIf="decodedPayload" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Raw Data -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Données Brutes</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm font-medium text-gray-700">Payload Original</label>
+            <div class="mt-1 p-3 bg-gray-100 rounded font-mono text-sm">
+              {{ decodedPayload.rawPayload }}
+            </div>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Payload Hexadécimal</label>
+            <div class="mt-1 p-3 bg-gray-100 rounded font-mono text-sm">
+              {{ decodedPayload.hexPayload }}
+            </div>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Taille</label>
+            <div class="mt-1 p-3 bg-gray-100 rounded font-mono text-sm">
+              {{ decodedPayload.hexPayload.length / 2 }} octets
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Analysis Status -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Analyse d'Intégrité</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-sm">Intégrité des données</span>
+            <mat-icon [class]="decodedPayload.analysis.integrity ? 'text-green-600' : 'text-red-600'">
+              {{ decodedPayload.analysis.integrity ? 'check_circle' : 'error' }}
+            </mat-icon>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm">Plausibilité</span>
+            <mat-icon [class]="decodedPayload.analysis.plausibility ? 'text-green-600' : 'text-red-600'">
+              {{ decodedPayload.analysis.plausibility ? 'check_circle' : 'error' }}
+            </mat-icon>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm">Cohérence</span>
+            <mat-icon [class]="decodedPayload.analysis.consistency ? 'text-green-600' : 'text-red-600'">
+              {{ decodedPayload.analysis.consistency ? 'check_circle' : 'error' }}
+            </mat-icon>
+          </div>
+
+          <!-- Diagnostics -->
+          <div *ngIf="decodedPayload.analysis.diagnostics.length > 0">
+            <label class="text-sm font-medium text-gray-700">Diagnostics</label>
+            <div class="mt-2 space-y-1">
+              <div *ngFor="let diagnostic of decodedPayload.analysis.diagnostics"
+                   class="text-sm text-yellow-700 bg-yellow-50 p-2 rounded">
+                <mat-icon class="text-sm mr-1">warning</mat-icon>
+                {{ diagnostic }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Decoded Data Table -->
+  <mat-card *ngIf="decodedPayload">
+    <mat-card-header>
+      <mat-card-title>Données Décodées</mat-card-title>
+      <mat-card-subtitle>Structure analysée du payload LoRaWAN</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="overflow-x-auto">
+        <table mat-table [dataSource]="getPayloadTableData()" class="w-full">
+          <!-- Field Column -->
+          <ng-container matColumnDef="field">
+            <th mat-header-cell *matHeaderCellDef>Champ</th>
+            <td mat-cell *matCellDef="let element">
+              <span class="font-medium">{{ element.field }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Hex Column -->
+          <ng-container matColumnDef="hex">
+            <th mat-header-cell *matHeaderCellDef>Valeur Hex</th>
+            <td mat-cell *matCellDef="let element">
+              <span class="font-mono text-sm">{{ element.hex }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Value Column -->
+          <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>Valeur Décodée</th>
+            <td mat-cell *matCellDef="let element">
+              <span class="font-mono">{{ element.value }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Description Column -->
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let element">
+              <span class="text-sm text-gray-600">{{ element.description }}</span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['field', 'hex', 'value', 'description']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['field', 'hex', 'value', 'description'];"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Detailed Analysis -->
+  <mat-card *ngIf="decodedPayload">
+    <mat-card-header>
+      <mat-card-title>Analyse Détaillée</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-tab-group>
+        <!-- Battery Analysis -->
+        <mat-tab label="Batterie">
+          <div class="p-4 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm font-medium">Niveau de Batterie</label>
+                <div class="mt-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-2xl font-bold">{{ decodedPayload.decodedData.batteryLevel }}%</span>
+                    <mat-icon [class]="decodedPayload.decodedData.batteryLevel > 20 ? 'text-green-600' : 'text-red-600'">
+                      battery_{{ decodedPayload.decodedData.batteryLevel > 80 ? 'full' : decodedPayload.decodedData.batteryLevel > 60 ? '6_bar' : decodedPayload.decodedData.batteryLevel > 40 ? '4_bar' : decodedPayload.decodedData.batteryLevel > 20 ? '2_bar' : '1_bar' }}
+                    </mat-icon>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="text-sm font-medium">Tension</label>
+                <div class="mt-2">
+                  <span class="text-2xl font-bold">{{ decodedPayload.decodedData.batteryVoltage.toFixed(2) }}V</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="text-sm font-medium">État de Santé</label>
+              <div class="mt-2">
+                <span [class]="decodedPayload.decodedData.batteryLevel > 20 ? 'text-green-600' : 'text-red-600'">
+                  {{ decodedPayload.decodedData.batteryLevel > 80 ? 'Excellent' :
+                     decodedPayload.decodedData.batteryLevel > 60 ? 'Bon' :
+                     decodedPayload.decodedData.batteryLevel > 40 ? 'Moyen' :
+                     decodedPayload.decodedData.batteryLevel > 20 ? 'Faible' : 'Critique' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- GPS Analysis -->
+        <mat-tab label="Positionnement GPS">
+          <div class="p-4 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm font-medium">Latitude</label>
+                <div class="mt-2">
+                  <span class="font-mono text-lg">{{ decodedPayload.decodedData.coordinates.latitude.toFixed(6) }}</span>
+                </div>
+              </div>
+              <div>
+                <label class="text-sm font-medium">Longitude</label>
+                <div class="mt-2">
+                  <span class="font-mono text-lg">{{ decodedPayload.decodedData.coordinates.longitude.toFixed(6) }}</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="text-sm font-medium">Précision Estimée</label>
+              <div class="mt-2">
+                <span class="text-green-600">GPS positioning success</span>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Status Flags -->
+        <mat-tab label="Flags d'État">
+          <div class="p-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between p-2 border rounded">
+                <span>Man Down Status</span>
+                <mat-icon [ngClass]="getStatusIconClass(decodedPayload.decodedData.statusFlags, 1)">
+                  {{ getStatusIcon(decodedPayload.decodedData.statusFlags, 1) }}
+                </mat-icon>
+              </div>
+              <div class="flex items-center justify-between p-2 border rounded">
+                <span>Motion Detected</span>
+                <mat-icon [ngClass]="getStatusIconClass(decodedPayload.decodedData.statusFlags, 2)">
+                  {{ getStatusIcon(decodedPayload.decodedData.statusFlags, 2) }}
+                </mat-icon>
+              </div>
+              <div class="flex items-center justify-between p-2 border rounded">
+                <span>Battery Status</span>
+                <mat-icon [class]="decodedPayload.decodedData.batteryLevel > 20 ? 'text-green-600' : 'text-red-600'">
+                  {{ decodedPayload.decodedData.batteryLevel > 20 ? 'battery_full' : 'battery_alert' }}
+                </mat-icon>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

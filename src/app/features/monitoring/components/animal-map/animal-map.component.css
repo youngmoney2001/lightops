@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.custom-animal-marker {
+  background: transparent;
+  border: none;
+}
+
+.custom-gateway-marker {
+  background: transparent;
+  border: none;
+}
+
+.custom-site-marker {
+  background: transparent;
+  border: none;
+}
+
+.animal-marker:hover .animal-info {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gateway-marker:hover .gateway-info {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.site-marker {
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}

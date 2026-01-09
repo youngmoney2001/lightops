@@ -1,0 +1,297 @@
+/* Design System Variables */
+:host {
+  --status-success: #10B981;
+  --status-warning: #F59E0B;
+  --status-danger: #EF4444;
+  --status-offline: #9CA3AF;
+  --status-maintenance: #3B82F6;
+  --text-success: #065F46;
+  --text-warning: #92400E;
+  --text-danger: #991B1B;
+  --text-offline: #6B7280;
+  --text-maintenance: #1E40AF;
+}
+
+/* Base styles */
+.sensor-status {
+  font-family: 'Inter', sans-serif;
+  display: inline-flex;
+}
+
+/* Status indicator colors */
+.bg-status-success {
+  background-color: var(--status-success);
+}
+
+.bg-status-warning {
+  background-color: var(--status-warning);
+}
+
+.bg-status-danger {
+  background-color: var(--status-danger);
+}
+
+.bg-gray-400 {
+  background-color: var(--status-offline);
+}
+
+.bg-blue-400 {
+  background-color: var(--status-maintenance);
+}
+
+/* Text colors for labels */
+.text-status-success {
+  color: var(--text-success);
+}
+
+.text-status-warning {
+  color: var(--text-warning);
+}
+
+.text-status-danger {
+  color: var(--text-danger);
+}
+
+.text-gray-500 {
+  color: var(--text-offline);
+}
+
+.text-blue-600 {
+  color: var(--text-maintenance);
+}
+
+/* Animations */
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping {
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* Hover effects */
+.sensor-status:hover .rounded-full:not(.absolute) {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.sensor-status:hover .animate-ping {
+  animation-duration: 1.5s;
+}
+
+/* Status-specific hover effects */
+.sensor-status:hover .bg-status-success {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.sensor-status:hover .bg-status-warning {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.sensor-status:hover .bg-status-danger {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.sensor-status:hover .bg-gray-400 {
+  box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.2);
+}
+
+.sensor-status:hover .bg-blue-400 {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Transition for smooth state changes */
+.sensor-status div {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Size-specific icon adjustments */
+.sensor-status .h-1.w-1 svg,
+.sensor-status .h-1\.5.w-1\.5 svg,
+.sensor-status .h-2.w-2 svg {
+  display: block;
+}
+
+/* Typography */
+.text-sm {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-xs {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem;
+}
+
+/* Tooltip styles */
+.sensor-status .absolute {
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.sensor-status .absolute::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #1f2937;
+}
+
+/* Accessibility */
+.sensor-status[role="status"]:focus-within {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-ping,
+  .animate-pulse-slow,
+  .sensor-status div,
+  .sensor-status:hover .rounded-full:not(.absolute),
+  .sensor-status .absolute {
+    animation: none;
+    transition: none;
+  }
+
+  .sensor-status:hover .animate-ping {
+    animation: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :host {
+    --status-success: #10B981;
+    --status-warning: #F59E0B;
+    --status-danger: #EF4444;
+    --status-offline: #6B7280;
+    --status-maintenance: #3B82F6;
+    --text-success: #A7F3D0;
+    --text-warning: #FCD34D;
+    --text-danger: #FCA5A5;
+    --text-offline: #9CA3AF;
+    --text-maintenance: #93C5FD;
+  }
+
+  .sensor-status .absolute {
+    background-color: #374151;
+    color: #f9fafb;
+  }
+
+  .sensor-status .absolute::before {
+    border-bottom-color: #374151;
+  }
+
+  .sensor-legend {
+    border-color: #4b5563;
+  }
+
+  .sensor-legend h4 {
+    color: #d1d5db;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sensor-status .animate-ping,
+  .sensor-status .animate-pulse-slow {
+    animation: none;
+  }
+
+  .sensor-status .absolute,
+  .sensor-legend {
+    display: none;
+  }
+
+  .sensor-status .rounded-full {
+    border: 1px solid #000;
+  }
+}
+
+/* Status-specific print colors */
+@media print {
+  .bg-status-success {
+    background-color: #000 !important;
+  }
+
+  .text-status-success {
+    color: #000 !important;
+  }
+}
+
+/* Container for inline usage */
+:host {
+  display: inline-block;
+}
+
+/* Legend grid */
+.grid.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+/* Additional TypeScript properties/methods for component class */
+/*
+  // Add these properties to your component class:
+
+  @Input() showTooltip = false;
+  @Input() lastUpdate?: Date;
+  @Input() sensorId?: string;
+  @Input() showLegend = false;
+
+  // Get all status types for legend
+  get statusTypes(): SensorStatus[] {
+    return ['online', 'offline', 'warning', 'error', 'maintenance'];
+  }
+
+  // Optional: Add click handler for status indicator
+  @Output() statusClick = new EventEmitter<SensorStatus>();
+
+  onStatusClick(): void {
+    this.statusClick.emit(this.status);
+  }
+
+  // Add to main div: (click)="onStatusClick()"
+  // Add cursor-pointer class when clickable
+*/

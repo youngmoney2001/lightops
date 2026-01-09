@@ -1,0 +1,156 @@
+/* Design System Variables */
+:host {
+  --primary-color: #1A56DB;
+  --secondary-color: #3B82F6;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --border-color: #E5E7EB;
+  --success-color: #10B981;
+  --warning-color: #F59E0B;
+  --danger-color: #EF4444;
+  --surface-color: #F9FAFB;
+}
+
+/* Base styles */
+.data-card {
+  font-family: 'Inter', sans-serif;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom color classes for Design System */
+.text-primary-600 {
+  color: var(--primary-color);
+}
+
+.bg-primary-50 {
+  background-color: color-mix(in srgb, var(--primary-color) 10%, white);
+}
+
+.text-status-success {
+  color: var(--success-color);
+}
+
+.bg-green-50 {
+  background-color: color-mix(in srgb, var(--success-color) 10%, white);
+}
+
+.text-status-warning {
+  color: var(--warning-color);
+}
+
+.bg-yellow-50 {
+  background-color: color-mix(in srgb, var(--warning-color) 10%, white);
+}
+
+.text-status-danger {
+  color: var(--danger-color);
+}
+
+.bg-red-50 {
+  background-color: color-mix(in srgb, var(--danger-color) 10%, white);
+}
+
+.text-blue-600 {
+  color: var(--secondary-color);
+}
+
+.bg-blue-50 {
+  background-color: color-mix(in srgb, var(--secondary-color) 10%, white);
+}
+
+/* Typography scale */
+.text-2xl {
+  font-size: 1.5rem; /* 24px */
+  line-height: 2rem;
+}
+
+.text-sm {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem;
+}
+
+.text-xs {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem;
+}
+
+/* Font weights */
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+/* Skeleton loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Hover effects */
+.data-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Compact mode adjustments */
+:host-context(.compact-view) .data-card {
+  padding: 1rem !important;
+}
+
+/* Responsive typography */
+@media (max-width: 640px) {
+  .data-card {
+    padding: 1rem;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem; /* 20px */
+    line-height: 1.75rem;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .data-card {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .text-text-primary {
+    color: #f9fafb;
+  }
+
+  .text-text-secondary {
+    color: #d1d5db;
+  }
+
+  .border-border-light {
+    border-color: #374151;
+  }
+
+  .bg-gray-200 {
+    background-color: #374151;
+  }
+}
+
+/* Accessibility */
+.data-card:focus-within {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Smooth number transitions for value changes */
+.value-transition {
+  transition: color 300ms ease;
+}

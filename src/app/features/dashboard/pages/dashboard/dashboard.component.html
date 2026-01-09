@@ -1,0 +1,523 @@
+<div class="min-h-screen bg-surface-secondary">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="p-6 space-y-6">
+      <div class="flex items-center justify-between">
+        <app-loading-skeleton type="text" width="200px" height="32px"></app-loading-skeleton>
+        <app-loading-skeleton type="rectangle" width="120px" height="40px"></app-loading-skeleton>
+      </div>
+
+      <!-- Map Skeleton -->
+      <div class="card h-[400px] animate-pulse">
+        <div class="w-full h-full bg-gray-200 rounded-xl"></div>
+      </div>
+
+      <!-- Metrics Skeleton -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="card p-6">
+            <app-loading-skeleton type="text" width="120px" height="20px" class="mb-4"></app-loading-skeleton>
+            <app-loading-skeleton type="text" width="80px" height="32px" class="mb-2"></app-loading-skeleton>
+            <app-loading-skeleton type="text" width="100px" height="16px"></app-loading-skeleton>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Main Content -->
+  @if (!isLoading) {
+    <div class="space-y-6 p-4 md:p-6">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-h1 text-primary">Tableau de bord</h1>
+          <p class="text-body text-secondary mt-1">
+            Vue d'ensemble de votre plateforme LightOps
+            @if (currentUser) {
+              - Connecté en tant que <span class="font-medium">{{ currentUser.name }}</span>
+            }
+          </p>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <button
+            (click)="refreshData()"
+            class="btn-secondary flex items-center"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Actualiser
+          </button>
+
+          <div class="relative">
+            <button class="btn-primary flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              Actions rapides
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 1: Carte Géographique -->
+      <div class="card overflow-hidden">
+        <div class="p-4 border-b border-light">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-h3 text-primary">Carte des sites</h2>
+              <p class="text-body text-secondary mt-1">
+                {{ sites.length }} sites actifs - {{ getTotalAnimalsCount() }} animaux suivis
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-status-success"></div>
+                <span class="text-small text-secondary">Actif</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-status-warning"></div>
+                <span class="text-small text-secondary">Maintenance</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-gray-400"></div>
+                <span class="text-small text-secondary">Inactif</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map Container -->
+        <div #mapContainer class="h-[500px] w-full"></div>
+
+        <!-- Quick Stats Overlay -->
+        <div class="absolute bottom-4 left-4 z-[1000]">
+          <div class="bg-white rounded-lg shadow-lg p-4 min-w-[200px]">
+            <h3 class="text-lead font-semibold text-primary mb-2">Statistiques globales</h3>
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-body text-secondary">Sites actifs</span>
+                <span class="text-body font-semibold text-primary">
+                  {{ getActiveSitesCount() }}
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-body text-secondary">Total animaux</span>
+                <span class="text-body font-semibold text-primary">
+                  {{ getTotalAnimalsCount() }}
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-body text-secondary">Alertes aujourd'hui</span>
+                <span class="text-body font-semibold text-status-warning">3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Métriques Globales -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        @for (metric of metrics; track metric.title) {
+          <app-data-card
+            [title]="metric.title"
+            [value]="metric.value"
+            [unit ]="metric.unit"
+            [trend]="metric.trend"
+            [trendValue]="metric.trendValue"
+            [icon]="metric.icon"
+            [color]="metric.color"
+          >
+            @if (metric.details) {
+              <div class="text-small text-secondary mt-1">{{ metric.details }}</div>
+            }
+          </app-data-card>
+        }
+      </div>
+
+      <!-- Section 3: Monitoring Temps Réel & Activités -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Monitoring Temps Réel -->
+        <div class="lg:col-span-2">
+          <div class="card h-full">
+            <div class="p-4 border-b border-light">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="text-h3 text-primary">Événements en direct</h2>
+                  <p class="text-body text-secondary mt-1">Mises à jour en temps réel du système</p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <button
+                    (click)="toggleAutoScroll()"
+                    [class.text-primary-600]="autoScrollEnabled"
+                    [class.text-gray-400]="!autoScrollEnabled"
+                    class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    [title]="autoScrollEnabled ? 'Désactiver le défilement auto' : 'Activer le défilement auto'"
+                    
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                  </button>
+
+                  <button
+                    (click)="toggleLiveMonitoring()"
+                    [class.text-status-danger]="isLiveMonitoringPaused"
+                    [class.text-primary-600]="!isLiveMonitoringPaused"
+                    class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    [title]="isLiveMonitoringPaused ? 'Reprendre le monitoring' : 'Pause du monitoring'"
+                  >
+                    @if (isLiveMonitoringPaused) {
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                      </svg>
+                    } @else {
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                      </svg>
+                    }
+                  </button>
+
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    En direct
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Liste des événements -->
+            <div id="live-events-container" class="h-[400px] overflow-y-auto p-4 space-y-3">
+              @for (event of liveEvents; track event.id) {
+                <div class="flex items-start p-3 rounded-lg border border-light hover:bg-gray-50 transition-colors animate-fade-in">
+                  <!-- Icon -->
+                  <div class="flex-shrink-0 mt-1">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                         [ngClass]="{
+                           'bg-blue-100': event.severity === 'info',
+                           'bg-yellow-100': event.severity === 'warning',
+                           'bg-red-100': event.severity === 'danger'
+                         }">
+                      <svg class="w-4 h-4"
+                           [ngClass]="{
+                             'text-blue-600': event.severity === 'info',
+                             'text-yellow-600': event.severity === 'warning',
+                             'text-red-600': event.severity === 'danger'
+                           }"
+                           fill="none"
+                           stroke="currentColor"
+                           viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getEventIcon(event.type)"></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <!-- Content -->
+                  <div class="ml-3 flex-1">
+                    <div class="flex items-center justify-between">
+                      <p class="text-body font-medium text-primary">{{ event.message }}</p>
+                      <span [ngClass]="getSeverityColor(event.severity)"
+                            class="text-xs font-medium px-2 py-1 rounded-full">
+                        {{ getSeverityLabel(event.severity) }}
+                      </span>
+                    </div>
+
+                    <div class="flex items-center mt-1 text-small text-secondary">
+                      <span>{{ formatTimeAgo(event.timestamp) }}</span>
+
+                      @if (event.sensorId) {
+                        <span class="mx-2">•</span>
+                        <span>Capteur #{{ event.sensorId }}</span>
+                      }
+
+                      @if (event.animalId) {
+                        <span class="mx-2">•</span>
+                        <span>Animal #{{ event.animalId }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+
+              @if (liveEvents.length === 0) {
+                <app-empty-state
+                  title="Aucun événement récent"
+                  description="Les événements en direct apparaîtront ici."
+                  icon="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></app-empty-state>
+              }
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 border-t border-light">
+              <div class="flex items-center justify-between text-small text-secondary">
+                <span>Dernière mise à jour : {{ formatTimeAgo(lastUpdate) }}</span>
+                <button class="text-primary-600 hover:text-primary-700 font-medium">
+                  Voir l'historique complet →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activités Récentes -->
+        <div class="lg:col-span-1">
+          <div class="card h-full">
+            <div class="p-4 border-b border-light">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="text-h3 text-primary">Activités récentes</h2>
+                  <p class="text-body text-secondary mt-1">Dernières actions des utilisateurs</p>
+                </div>
+
+                <button
+                  (click)="exportToCSV()"
+                  class="btn-secondary text-small"
+                >
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  CSV
+                </button>
+              </div>
+            </div>
+
+            <!-- Filtres -->
+            <div class="p-4 border-b border-light">
+              <div class="flex flex-wrap gap-2">
+                @for (type of activityTypes; track type) {
+                  <button
+                    (click)="selectedActivityType = type"
+                    [class.bg-primary-600]="selectedActivityType === type"
+                    [class.text-white]="selectedActivityType === type"
+                    [class.bg-gray-100]="selectedActivityType !== type"
+                    [class.text-gray-700]="selectedActivityType !== type"
+                    class="px-3 py-1.5 rounded-full text-small font-medium transition-colors"
+                  >
+                    {{ type }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Tableau des activités -->
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Utilisateur
+                    </th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Action
+                    </th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Timestamp
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @for (activity of paginatedActivities; track activity.id) {
+                    <tr class="hover:bg-gray-50 transition-colors">
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="flex-shrink-0 h-8 w-8">
+                            @if (activity.user.avatar) {
+                              <img class="h-8 w-8 rounded-full" [src]="activity.user.avatar" alt="">
+                            } @else {
+                              <div class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
+                                <span class="text-sm font-semibold text-primary-600">
+                                  {{ activity.user.name.charAt(0) }}
+                                </span>
+                              </div>
+                            }
+                          </div>
+                          <div class="ml-3">
+                            <div class="text-sm font-medium text-gray-900">{{ activity.user.name }}</div>
+                            <div class="text-xs text-gray-500">
+                              <app-role-badge [role]="activity.user.role" size="sm"></app-role-badge>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ activity.action }}</div>
+                        <div class="text-xs text-gray-500 truncate max-w-[150px]">{{ activity.target }}</div>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                        {{ formatTimeAgo(activity.timestamp) }}
+                      </td>
+                    </tr>
+                  }
+
+                  @if (filteredActivities.length === 0) {
+                    <tr>
+                      <td colspan="3" class="px-4 py-8 text-center text-gray-500">
+                        Aucune activité trouvée
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (totalPages > 1) {
+              <div class="px-4 py-3 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm text-gray-700">
+                    Affichage <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
+                    à <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, filteredActivities.length) }}</span>
+                    sur <span class="font-medium">{{ filteredActivities.length }}</span> résultats
+                  </div>
+                  <div class="flex space-x-2">
+                    <button
+                      (click)="changePage(currentPage - 1)"
+                      [disabled]="currentPage === 1"
+                      [class.opacity-50]="currentPage === 1"
+                      [class.cursor-not-allowed]="currentPage === 1"
+                      class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Précédent
+                    </button>
+                    <button
+                      (click)="changePage(currentPage + 1)"
+                      [disabled]="currentPage === totalPages"
+                      [class.opacity-50]="currentPage === totalPages"
+                      [class.cursor-not-allowed]="currentPage === totalPages"
+                      class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Suivant
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Distribution par rôle -->
+        <div class="card">
+          <div class="p-4 border-b border-light">
+            <h3 class="text-h4 text-primary">Distribution par rôle</h3>
+          </div>
+          <div class="p-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <app-role-badge role="super-admin" size="sm"></app-role-badge>
+                </div>
+                <span class="text-body font-semibold">3</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <app-role-badge role="site-manager" size="sm"></app-role-badge>
+                </div>
+                <span class="text-body font-semibold">12</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <app-role-badge role="veterinary" size="sm"></app-role-badge>
+                </div>
+                <span class="text-body font-semibold">8</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <app-role-badge role="general-manager" size="sm"></app-role-badge>
+                </div>
+                <span class="text-body font-semibold">5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statut des capteurs -->
+        <div class="card">
+          <div class="p-4 border-b border-light">
+            <h3 class="text-h4 text-primary">Statut des capteurs</h3>
+          </div>
+          <div class="p-4">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <app-sensor-status status="online"></app-sensor-status>
+                  <span class="ml-2 text-body">En ligne</span>
+                </div>
+                <span class="text-body font-semibold">145</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <app-sensor-status status="offline"></app-sensor-status>
+                  <span class="ml-2 text-body">Hors ligne</span>
+                </div>
+                <span class="text-body font-semibold">3</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <app-sensor-status status="warning"></app-sensor-status>
+                  <span class="ml-2 text-body">Batterie faible</span>
+                </div>
+                <span class="text-body font-semibold">7</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <app-sensor-status status="maintenance"></app-sensor-status>
+                  <span class="ml-2 text-body">Maintenance</span>
+                </div>
+                <span class="text-body font-semibold">2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alertes par gravité -->
+        <div class="card">
+          <div class="p-4 border-b border-light">
+            <h3 class="text-h4 text-primary">Alertes aujourd'hui</h3>
+          </div>
+          <div class="p-4">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-status-danger"></div>
+                  <span class="ml-2 text-body">Critiques</span>
+                </div>
+                <span class="text-body font-semibold text-status-danger">2</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-status-warning"></div>
+                  <span class="ml-2 text-body">Avertissements</span>
+                </div>
+                <span class="text-body font-semibold text-status-warning">5</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="w-3 h-3 rounded-full bg-status-success"></div>
+                  <span class="ml-2 text-body">Résolues</span>
+                </div>
+                <span class="text-body font-semibold text-status-success">8</span>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-light">
+              <button class="w-full btn-primary">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+                Voir toutes les alertes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

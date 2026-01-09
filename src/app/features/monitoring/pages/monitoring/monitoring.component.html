@@ -1,0 +1,107 @@
+<div class="monitoring-container bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo and Title -->
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <img class="h-8 w-8" src="/assets/icons/tracking.svg" alt="Tracking Animal">
+          </div>
+          <div class="ml-3">
+            <h1 class="text-xl font-bold text-gray-900">
+              Monitoring Animal LoRaWAN
+            </h1>
+            <p class="text-sm text-gray-500">
+              Système de tracking temps réel • ChirpStack Integration
+            </p>
+          </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="flex items-center space-x-6">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-blue-600">{{ activeSensors }}/{{ totalSensors }}</div>
+            <div class="text-xs text-gray-500">Capteurs actifs</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">{{ onlineGateways }}/{{ totalGateways }}</div>
+            <div class="text-xs text-gray-500">Gateways en ligne</div>
+          </div>
+          <div class="text-center cursor-pointer" (click)="navigateToTab('alerts')">
+            <div class="relative">
+              <div class="text-2xl font-bold" [ngClass]="unreadAlertsCount > 0 ? 'text-red-600' : 'text-gray-600'">
+                {{ unreadAlertsCount }}
+              </div>
+              <div class="text-xs text-gray-500">Alertes critiques</div>
+              <div *ngIf="unreadAlertsCount > 0"
+                   class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Menu -->
+        <div class="flex items-center space-x-4">
+          <button mat-icon-button [matMenuTriggerFor]="userMenu">
+            <mat-icon>account_circle</mat-icon>
+          </button>
+          <mat-menu #userMenu="matMenu">
+            <button mat-menu-item>
+              <mat-icon>settings</mat-icon>
+              <span>Paramètres</span>
+            </button>
+            <button mat-menu-item>
+              <mat-icon>help</mat-icon>
+              <span>Aide</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item>
+              <mat-icon>logout</mat-icon>
+              <span>Déconnexion</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white border-t border-gray-200">
+      <div class="px-4 sm:px-6 lg:px-8">
+        <div class="flex space-x-8">
+          <button *ngFor="let item of menuItems"
+                  class="flex items-center px-3 py-2 text-sm font-medium border-b-2 transition-colors"
+                  [ngClass]="{
+                    'border-blue-600 text-blue-600': activeTab === item.id,
+                    'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== item.id
+                  }"
+                  (click)="navigateToTab(item.id)">
+            <mat-icon class="mr-2 text-sm">{{ item.icon }}</mat-icon>
+            {{ item.label }}
+            <span *ngIf="item.badge && item.badge > 0"
+                  class="ml-2 px-2 py-1 text-xs font-bold bg-red-100 text-red-800 rounded-full">
+              {{ item.badge }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- Global Alerts -->
+  <div *ngIf="unreadAlertsCount > 0"
+       class="fixed bottom-4 right-4 z-50 animate-pulse">
+    <button (click)="acknowledgeAllAlerts()"
+            class="flex items-center px-4 py-3 bg-red-600 text-white rounded-lg shadow-lg hover:bg-red-700 transition-colors">
+      <mat-icon class="mr-2">warning</mat-icon>
+      <span class="font-semibold">{{ unreadAlertsCount }} alerte(s) critique(s)</span>
+      <mat-icon class="ml-2">close</mat-icon>
+    </button>
+  </div>
+</div>

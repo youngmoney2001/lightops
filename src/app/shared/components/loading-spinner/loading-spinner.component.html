@@ -1,0 +1,12 @@
+<div [ngClass]="containerClasses">
+  <div class="relative">
+    <div class="animate-spin rounded-full border-2 border-current border-t-transparent"
+         [ngClass]="[sizeClasses, colorClasses]"></div>
+  </div>
+
+  @if (showMessage && message) {
+    <div class="mt-4 text-center">
+      <p class="text-sm text-gray-600 animate-pulse">{{ message }}</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,243 @@
+<header class="sticky top-0 z-40 flex-shrink-0 flex h-16 bg-white shadow">
+  <div class="flex-1 flex items-center justify-between px-4 lg:px-8">
+    <!-- Left side: Menu button and page title -->
+    <div class="flex items-center">
+      <!-- Menu button (visible on mobile) -->
+      <button
+        type="button"
+        (click)="onToggleSidebar()"
+        class="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+      >
+        <span class="sr-only">Ouvrir le menu</span>
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          @if (sidebarCollapsed) {
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          } @else {
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          }
+        </svg>
+      </button>
+
+      <!-- Page title -->
+      <div class="ml-4 lg:ml-0">
+        <h1 class="text-xl font-semibold text-gray-900 truncate">
+          {{ pageTitle || 'Tableau de bord' }}
+        </h1>
+        <p class="text-sm text-gray-500 hidden sm:block">
+          {{ getPageSubtitle() }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Right side: Search, notifications, user menu -->
+    <div class="flex items-center space-x-4">
+      <!-- Search button (mobile) -->
+      <button
+        type="button"
+        (click)="showSearch = !showSearch"
+        class="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+      >
+        <span class="sr-only">Rechercher</span>
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </button>
+
+      <!-- Search bar (desktop) -->
+      <div class="hidden lg:flex lg:flex-1 lg:max-w-xs">
+        <div class="relative w-full">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <input
+            type="search"
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            placeholder="Rechercher..."
+            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="relative notifications-menu">
+        <button
+          type="button"
+          (click)="showNotifications = !showNotifications"
+          class="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 notifications-button"
+        >
+          <span class="sr-only">Notifications</span>
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+          </svg>
+          @if (unreadNotifications > 0) {
+            <span class="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"></span>
+          }
+        </button>
+
+        <!-- Notifications dropdown -->
+        @if (showNotifications) {
+          <div class="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100">
+            <div class="py-3 px-4">
+              <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-900">Notifications</p>
+                @if (unreadNotifications > 0) {
+                  <button
+                    type="button"
+                    (click)="markAllNotificationsAsRead()"
+                    class="text-xs font-medium text-blue-600 hover:text-blue-500"
+                  >
+                    Tout marquer comme lu
+                  </button>
+                }
+              </div>
+            </div>
+            <div class="py-2 max-h-96 overflow-y-auto">
+              <!-- Notification items would go here -->
+              <div class="px-4 py-3 hover:bg-gray-50">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                      <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-3 flex-1">
+                    <p class="text-sm font-medium text-gray-900">Capteur connecté</p>
+                    <p class="mt-1 text-sm text-gray-600">Le capteur TRK-001 s'est connecté avec succès.</p>
+                    <p class="mt-1 text-xs text-gray-500">Il y a 2 minutes</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="py-2 px-4">
+              <a
+                href="#"
+                class="block text-center text-sm font-medium text-blue-600 hover:text-blue-500"
+              >
+                Voir toutes les notifications
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- User menu -->
+      <div class="relative user-menu">
+        <button
+          type="button"
+          (click)="showUserMenu = !showUserMenu"
+          class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 user-menu-button"
+        >
+          <span class="sr-only">Ouvrir le menu utilisateur</span>
+          @if (user?.avatar) {
+            <img
+              class="h-8 w-8 rounded-full"
+              [src]="user!.avatar"
+              alt=""
+            />
+          } @else {
+            <div
+              [class]="getAvatarUrl()"
+              class="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold"
+            >
+              {{ getUserInitials() }}
+            </div>
+          }
+          <div class="ml-3 hidden lg:block">
+            <p class="text-sm font-medium text-gray-700">{{ user?.name || 'Utilisateur' }}</p>
+            <p class="text-xs text-gray-500">{{ getUserRoleLabel() }}</p>
+          </div>
+          <svg class="ml-2 h-5 w-5 text-gray-400 hidden lg:block" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+
+        <!-- User dropdown -->
+        @if (showUserMenu) {
+          <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100">
+            <div class="py-3 px-4">
+              <p class="text-sm font-medium text-gray-900">{{ user?.name || 'Utilisateur' }}</p>
+              <p class="text-sm text-gray-500 truncate">{{ user?.email || '' }}</p>
+              <p class="text-xs text-gray-500 mt-1">{{ getUserRoleLabel() }}</p>
+            </div>
+            <div class="py-2">
+              <a
+                [routerLink]="['/settings/profile']"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <span class="flex items-center">
+                  <svg class="mr-3 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                  </svg>
+                  Mon profil
+                </span>
+              </a>
+              <a
+                [routerLink]="['/settings']"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <span class="flex items-center">
+                  <svg class="mr-3 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                  </svg>
+                  Paramètres
+                </span>
+              </a>
+            </div>
+            <div class="py-2">
+              <button
+                type="button"
+                (click)="onLogout()"
+                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <span class="flex items-center">
+                  <svg class="mr-3 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                  </svg>
+                  Déconnexion
+                </span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Search overlay (mobile) -->
+  @if (showSearch) {
+    <div class="absolute inset-x-0 top-0 p-2 lg:hidden">
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          placeholder="Rechercher..."
+          class="block w-full pl-10 pr-10 py-3 border-transparent rounded-lg text-base leading-6 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+          autofocus
+        >
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+          <button
+            type="button"
+            (click)="onClearSearch()"
+            class="p-1 rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <span class="sr-only">Annuler</span>
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</header>

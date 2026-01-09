@@ -1,0 +1,325 @@
+<div class="chirpstack-reports p-6 space-y-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Rapports ChirpStack</h1>
+      <p class="text-gray-600 mt-1">Analyse et rapports détaillés du réseau LoRaWAN</p>
+    </div>
+    <div class="flex space-x-2">
+      <button mat-raised-button color="primary" (click)="refreshReports()">
+        <mat-icon>refresh</mat-icon>
+        Actualiser
+      </button>
+      <button mat-raised-button (click)="exportReport()">
+        <mat-icon>download</mat-icon>
+        Exporter
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Filtres de Rapport</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Tenant Filter -->
+        <mat-form-field>
+          <mat-label>Tenant</mat-label>
+          <mat-select [(ngModel)]="filters.tenantId" (selectionChange)="onTenantChange($event.value)">
+            <mat-option value="">Tous les tenants</mat-option>
+            <mat-option *ngFor="let tenant of tenants$ | async" [value]="tenant.id">
+              {{ tenant.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Application Filter -->
+        <mat-form-field>
+          <mat-label>Application</mat-label>
+          <mat-select [(ngModel)]="filters.applicationId" (selectionChange)="onApplicationChange($event.value)">
+            <mat-option value="">Toutes les applications</mat-option>
+            <mat-option *ngFor="let app of applications$ | async" [value]="app.id">
+              {{ app.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Report Type -->
+        <mat-form-field>
+          <mat-label>Type de Rapport</mat-label>
+          <mat-select [(ngModel)]="filters.reportType" (selectionChange)="onReportTypeChange($event.value)">
+            <mat-option value="devices">Appareils</mat-option>
+            <mat-option value="gateways">Passerelles</mat-option>
+            <mat-option value="performance">Performance</mat-option>
+            <mat-option value="usage">Utilisation</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Start Date -->
+        <mat-form-field>
+          <mat-label>Date de début</mat-label>
+          <input matInput [matDatepicker]="startPicker" [(ngModel)]="filters.startDate" (dateChange)="onDateRangeChange()">
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- End Date -->
+        <mat-form-field>
+          <mat-label>Date de fin</mat-label>
+          <input matInput [matDatepicker]="endPicker" [(ngModel)]="filters.endDate" (dateChange)="onDateRangeChange()" placeholder="end date">
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="flex justify-center items-center py-8">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span class="ml-4">Chargement des rapports...</span>
+  </div>
+
+  <!-- Reports Content -->
+  <div *ngIf="!loading">
+    <mat-tab-group>
+      <!-- Device Reports -->
+      <mat-tab *ngIf="filters.reportType === 'devices'" label="Rapport Appareils">
+        <div class="p-4">
+          <mat-card>
+            <mat-card-content>
+              <div class="overflow-x-auto">
+                <table mat-table [dataSource]="deviceReports$ | async" class="w-full">
+                  <!-- Device Name Column -->
+                  <ng-container matColumnDef="deviceName">
+                    <th mat-header-cell *matHeaderCellDef>Nom de l'appareil</th>
+                    <td mat-cell *matCellDef="let device">{{ device.deviceName }}</td>
+                  </ng-container>
+
+                  <!-- DevEUI Column -->
+                  <ng-container matColumnDef="devEUI">
+                    <th mat-header-cell *matHeaderCellDef>DevEUI</th>
+                    <td mat-cell *matCellDef="let device">
+                      <span class="font-mono text-sm">{{ device.devEUI }}</span>
+                    </td>
+                  </ng-container>
+
+                  <!-- Last Seen Column -->
+                  <ng-container matColumnDef="lastSeen">
+                    <th mat-header-cell *matHeaderCellDef>Dernière activité</th>
+                    <td mat-cell *matCellDef="let device">{{ device.lastSeen | date:'short' }}</td>
+                  </ng-container>
+
+                  <!-- Uplink Count Column -->
+                  <ng-container matColumnDef="uplinkCount">
+                    <th mat-header-cell *matHeaderCellDef>Uplink</th>
+                    <td mat-cell *matCellDef="let device">{{ device.uplinkCount }}</td>
+                  </ng-container>
+
+                  <!-- Downlink Count Column -->
+                  <ng-container matColumnDef="downlinkCount">
+                    <th mat-header-cell *matHeaderCellDef>Downlink</th>
+                    <td mat-cell *matCellDef="let device">{{ device.downlinkCount }}</td>
+                  </ng-container>
+
+                  <!-- Status Column -->
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Statut</th>
+                    <td mat-cell *matCellDef="let device">
+                      <mat-icon [class]="device.status === 'active' ? 'text-green-600' : 'text-red-600'">
+                        {{ device.status === 'active' ? 'check_circle' : 'error' }}
+                      </mat-icon>
+                      <span class="ml-2">{{ device.status === 'active' ? 'Actif' : 'Inactif' }}</span>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="deviceColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: deviceColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Gateway Reports -->
+      <mat-tab *ngIf="filters.reportType === 'gateways'" label="Rapport Passerelles">
+        <div class="p-4">
+          <mat-card>
+            <mat-card-content>
+              <div class="overflow-x-auto">
+                <table mat-table [dataSource]="gatewayReports$ | async" class="w-full">
+                  <!-- Gateway ID Column -->
+                  <ng-container matColumnDef="gatewayId">
+                    <th mat-header-cell *matHeaderCellDef>ID Passerelle</th>
+                    <td mat-cell *matCellDef="let gateway">
+                      <span class="font-mono text-sm">{{ gateway.gatewayId }}</span>
+                    </td>
+                  </ng-container>
+
+                  <!-- Name Column -->
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Nom</th>
+                    <td mat-cell *matCellDef="let gateway">{{ gateway.name }}</td>
+                  </ng-container>
+
+                  <!-- Location Column -->
+                  <ng-container matColumnDef="location">
+                    <th mat-header-cell *matHeaderCellDef>Localisation</th>
+                    <td mat-cell *matCellDef="let gateway">{{ gateway.location || 'N/A' }}</td>
+                  </ng-container>
+
+                  <!-- Last Seen Column -->
+                  <ng-container matColumnDef="lastSeen">
+                    <th mat-header-cell *matHeaderCellDef>Dernière activité</th>
+                    <td mat-cell *matCellDef="let gateway">{{ gateway.lastSeen | date:'short' }}</td>
+                  </ng-container>
+
+                  <!-- RX Packets Column -->
+                  <ng-container matColumnDef="rxPackets">
+                    <th mat-header-cell *matHeaderCellDef>Packets RX</th>
+                    <td mat-cell *matCellDef="let gateway">{{ gateway.rxPackets }}</td>
+                  </ng-container>
+
+                  <!-- TX Packets Column -->
+                  <ng-container matColumnDef="txPackets">
+                    <th mat-header-cell *matHeaderCellDef>Packets TX</th>
+                    <td mat-cell *matCellDef="let gateway">{{ gateway.txPackets }}</td>
+                  </ng-container>
+
+                  <!-- Status Column -->
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Statut</th>
+                    <td mat-cell *matCellDef="let gateway">
+                      <mat-icon [class]="gateway.status === 'online' ? 'text-green-600' : 'text-red-600'">
+                        {{ gateway.status === 'online' ? 'wifi' : 'wifi_off' }}
+                      </mat-icon>
+                      <span class="ml-2">{{ gateway.status === 'online' ? 'En ligne' : 'Hors ligne' }}</span>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="gatewayColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: gatewayColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Performance Reports -->
+      <mat-tab *ngIf="filters.reportType === 'performance'" label="Rapport Performance">
+        <div class="p-4 space-y-6">
+          <!-- Performance Metrics Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <mat-card>
+              <mat-card-content class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ performanceMetrics.totalUplinkMessages }}</div>
+                <div class="text-sm text-gray-600">Messages Uplink</div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-content class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ performanceMetrics.totalDownlinkMessages }}</div>
+                <div class="text-sm text-gray-600">Messages Downlink</div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-content class="text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ performanceMetrics.averageSNR.toFixed(1) }} dB</div>
+                <div class="text-sm text-gray-600">SNR Moyen</div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-content class="text-center">
+                <div class="text-2xl font-bold text-orange-600">{{ performanceMetrics.averageRSSI.toFixed(1) }} dBm</div>
+                <div class="text-sm text-gray-600">RSSI Moyen</div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Success/Error Rates -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Taux de Succès</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="text-3xl font-bold text-green-600">{{ performanceMetrics.successRate.toFixed(1) }}%</div>
+                <div class="mt-2">
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-green-600 h-2 rounded-full" [style.width.%]="performanceMetrics.successRate"></div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Taux d'Erreur</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="text-3xl font-bold text-red-600">{{ performanceMetrics.errorRate.toFixed(1) }}%</div>
+                <div class="mt-2">
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-red-600 h-2 rounded-full" [style.width.%]="performanceMetrics.errorRate"></div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Usage Reports -->
+      <mat-tab *ngIf="filters.reportType === 'usage'" label="Rapport Utilisation">
+        <div class="p-4 space-y-6">
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <mat-card>
+              <mat-card-content class="text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ (deviceReports$ | async)?.length || 0 }}</div>
+                <div class="text-sm text-gray-600">Appareils actifs</div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-content class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ (gatewayReports$ | async)?.length || 0 }}</div>
+                <div class="text-sm text-gray-600">Passerelles actives</div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-content class="text-center">
+                <div class="text-2xl font-bold text-purple-600">
+                  {{ ((deviceReports$ | async)?.reduce((sum, device) => sum + device.uplinkCount, 0) || 0) + ((gatewayReports$ | async)?.reduce((sum, gateway) => sum + gateway.rxPackets, 0) || 0) }}
+                </div>
+                <div class="text-sm text-gray-600">Messages totaux</div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Usage Trends -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Tendances d'utilisation</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="text-center py-8 text-gray-500">
+                <mat-icon class="text-4xl mb-4">bar_chart</mat-icon>
+                <p>Graphiques de tendances à implémenter</p>
+                <p class="text-sm">Intégration avec une bibliothèque de graphiques requise</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

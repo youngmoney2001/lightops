@@ -1,0 +1,254 @@
+/* Design System Variables */
+:host {
+  --error-color: #EF4444;
+  --warning-color: #F59E0B;
+  --info-color: #3B82F6;
+  --error-bg: #FEF2F2;
+  --warning-bg: #FFFBEB;
+  --info-bg: #EFF6FF;
+  --error-border: #FECACA;
+  --warning-border: #FDE68A;
+  --info-border: #BFDBFE;
+  --error-text: #991B1B;
+  --warning-text: #92400E;
+  --info-text: #1E40AF;
+}
+
+/* Base styles */
+.error-message {
+  font-family: 'Inter', sans-serif;
+  animation: slideIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Typography */
+.text-sm {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem;
+}
+
+.text-xs {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* Color classes using Design System */
+.bg-red-50 {
+  background-color: var(--error-bg);
+}
+
+.border-red-200 {
+  border-color: var(--error-border);
+}
+
+.text-red-800 {
+  color: var(--error-text);
+}
+
+.bg-yellow-50 {
+  background-color: var(--warning-bg);
+}
+
+.border-yellow-200 {
+  border-color: var(--warning-border);
+}
+
+.text-yellow-800 {
+  color: var(--warning-text);
+}
+
+.bg-blue-50 {
+  background-color: var(--info-bg);
+}
+
+.border-blue-200 {
+  border-color: var(--info-border);
+}
+
+.text-blue-800 {
+  color: var(--info-text);
+}
+
+/* Button colors */
+.bg-red-600 {
+  background-color: var(--error-color);
+}
+
+.bg-red-600:hover {
+  background-color: color-mix(in srgb, var(--error-color) 90%, black);
+}
+
+.bg-yellow-500 {
+  background-color: var(--warning-color);
+}
+
+.bg-blue-500 {
+  background-color: var(--info-color);
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Dismiss animation */
+.error-message.ng-leave {
+  animation: slideOut 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Progress bar animation */
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.error-message .h-full {
+  animation: progress 5s linear forwards;
+}
+
+/* Hover effects */
+.error-message:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.error-message {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Accessibility */
+.error-message:focus-within {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .error-message,
+  button,
+  .error-message .h-full {
+    animation: none;
+    transition: none;
+  }
+
+  .error-message:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .error-message {
+    --error-bg: #7f1d1d;
+    --warning-bg: #78350f;
+    --info-bg: #1e3a8a;
+    --error-border: #991b1b;
+    --warning-border: #92400e;
+    --info-border: #1e40af;
+    --error-text: #fca5a5;
+    --warning-text: #fcd34d;
+    --info-text: #93c5fd;
+  }
+
+  .bg-gray-200 {
+    background-color: #4b5563;
+  }
+
+  .text-gray-400 {
+    color: #9ca3af;
+  }
+
+  .hover\:text-gray-600:hover {
+    color: #d1d5db;
+  }
+
+  .hover\:bg-gray-100:hover {
+    background-color: #374151;
+  }
+
+  button.bg-white {
+    background-color: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+
+  button.bg-white:hover {
+    background-color: #4b5563;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .error-message {
+    padding: 0.75rem;
+  }
+
+  .error-message .flex.space-x-3 {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .error-message .flex.space-x-3 button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Print styles */
+@media print {
+  .error-message {
+    border: 1px solid #e5e7eb;
+    break-inside: avoid;
+  }
+
+  button {
+    display: none;
+  }
+
+  .error-message .h-full {
+    display: none;
+  }
+}

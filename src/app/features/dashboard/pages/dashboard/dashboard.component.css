@@ -1,0 +1,130 @@
+/* Styles spécifiques au dashboard */
+
+/* Map Styles */
+:host ::ng-deep .custom-marker {
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .custom-marker:hover {
+  transform: scale(1.2);
+  z-index: 1000 !important;
+}
+
+:host ::ng-deep .custom-cluster {
+  background-color: rgba(59, 130, 246, 0.8);
+  border: 3px solid white;
+  border-radius: 50%;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .custom-cluster:hover {
+  background-color: rgba(29, 78, 216, 0.9);
+  transform: scale(1.05);
+}
+
+:host ::ng-deep .leaflet-control-search {
+  background: none;
+  border: none;
+}
+
+:host ::ng-deep .leaflet-control-filters {
+  background: none;
+  border: none;
+}
+
+/* Live Events Scrollbar */
+#live-events-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+#live-events-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+#live-events-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+#live-events-container::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+}
+
+.live-indicator {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  :host ::ng-deep .leaflet-control {
+    width: calc(100% - 32px);
+    margin: 16px !important;
+  }
+
+  :host ::ng-deep .leaflet-control-search,
+  :host ::ng-deep .leaflet-control-filters {
+    width: 100% !important;
+  }
+
+  :host ::ng-deep .leaflet-control-search .bg-white {
+    width: 100% !important;
+  }
+
+  :host ::ng-deep .leaflet-control-filters .bg-white {
+    width: 100% !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :host ::ng-deep .leaflet-tile {
+    filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+  }
+
+  :host ::ng-deep .leaflet-control {
+    background: none;
+  }
+
+  :host ::ng-deep .leaflet-control .bg-white {
+    background-color: #374151 !important;
+    color: #f9fafb;
+  }
+
+  :host ::ng-deep .leaflet-control input {
+    background-color: #4b5563 !important;
+    border-color: #6b7280 !important;
+    color: #f9fafb !important;
+  }
+
+  :host ::ng-deep .leaflet-control input::placeholder {
+    color: #9ca3af !important;
+  }
+}

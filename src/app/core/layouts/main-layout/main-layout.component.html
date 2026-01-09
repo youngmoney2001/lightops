@@ -1,0 +1,68 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Mobile Overlay -->
+  @if (isMobile && !isSidebarCollapsed) {
+    <div
+      class="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+      (click)="onMobileOverlayClick()"
+    ></div>
+  }
+
+  <!-- Sidebar (Mobile & Desktop) -->
+  <div
+    class="fixed inset-y-0 left-0 z-50 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0"
+    [class]="isSidebarCollapsed ? '-translate-x-full lg:translate-x-0 lg:w-20' : 'translate-x-0 w-64'"
+  >
+    <app-sidebar
+      [collapsed]="isSidebarCollapsed"
+      [isMobile]="isMobile"
+      (toggle)="toggleSidebar()"
+    ></app-sidebar>
+  </div>
+
+  <!-- Main Content -->
+  <div
+    class="flex flex-col min-h-screen transition-all duration-300 ease-in-out"
+    [class]="isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'"
+  >
+    <!-- Header -->
+    <app-header
+      [sidebarCollapsed]="isSidebarCollapsed"
+      [pageTitle]="pageTitle"
+      [user]="user"
+      (toggleSidebar)="toggleSidebar()"
+      (logout)="logout()"
+    ></app-header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1">
+      <!-- Page Header -->
+      @if (showPageHeader && pageTitle) {
+        <app-page-header
+          [title]="pageTitle"
+          [description]="getPageDescription()"
+        ></app-page-header>
+      }
+
+      <!-- Loading Overlay -->
+      @if (isLoading && !isAuthRoute()) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75">
+          <div class="text-center">
+            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p class="mt-4 text-gray-600">Chargement...</p>
+          </div>
+        </div>
+      }
+
+      <!-- Router Outlet -->
+      <div class="px-4 py-6 sm:px-6 lg:px-8">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <app-footer
+      [appName]="appName"
+      [appVersion]="appVersion"
+    ></app-footer>
+  </div>
+</div>

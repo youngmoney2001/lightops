@@ -1,0 +1,107 @@
+<div
+  class="data-card bg-white border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-md"
+  [class]="cardClasses"
+  role="region"
+  [attr.aria-labelledby]="'data-card-title-' + title"
+>
+  <!-- Header -->
+  <div class="flex items-start justify-between mb-4">
+    <div>
+      <h3
+        id="data-card-title-{{title}}"
+        class="text-sm font-medium text-text-secondary"
+      >
+        {{ title }}
+      </h3>
+    </div>
+
+    <!-- Icon -->
+    <div
+      *ngIf="icon"
+      class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+      [ngClass]="colorClasses"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="icon" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <ng-container *ngIf="loading; else contentTemplate">
+    <div class="space-y-3">
+      <!-- Title Skeleton -->
+      <div class="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+
+      <!-- Value Skeleton -->
+      <div class="h-8 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+
+      <!-- Trend Skeleton -->
+      <div class="flex items-center space-x-2">
+        <div class="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Content -->
+  <ng-template #contentTemplate>
+    <div class="space-y-2">
+      <!-- Value -->
+      <div class="flex items-baseline space-x-2">
+        <span class="text-2xl font-semibold text-text-primary">
+          {{ value }}
+        </span>
+
+        <span *ngIf="unit" class="text-sm font-medium text-text-secondary">
+          {{ unit }}
+        </span>
+      </div>
+
+      <!-- Trend -->
+      <div
+        *ngIf="trendValue"
+        class="flex items-center space-x-2 mt-2"
+        [ngClass]="compact ? 'mt-1' : 'mt-2'"
+      >
+        <!-- Trend Icon -->
+        <svg
+          class="w-4 h-4"
+          [ngClass]="trendConfig.color"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="trendConfig.icon" />
+        </svg>
+
+        <!-- Trend Value -->
+        <span
+          class="text-sm font-medium"
+          [ngClass]="trendConfig.color"
+        >
+          {{ trendValue }}
+        </span>
+
+        <!-- Time period (optional) -->
+        <span *ngIf="!compact" class="text-xs text-text-secondary">
+          vs période précédente
+        </span>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Compact version additional info -->
+  <div *ngIf="compact" class="mt-4 pt-4 border-t border-border-light">
+    <p class="text-xs text-text-secondary">
+      Dernière mise à jour :
+      <span class="font-medium">À l'instant</span>
+    </p>
+  </div>
+</div>

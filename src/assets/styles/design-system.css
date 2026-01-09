@@ -1,0 +1,164 @@
+/* Design System - Classes utilitaires */
+@layer utilities {
+  /* Typographie */
+  .text-display {
+    @apply text-[36px] leading-[40px] font-bold;
+  }
+
+  .text-h1 {
+    @apply text-[30px] leading-[36px] font-bold;
+  }
+
+  .text-h2 {
+    @apply text-[24px] leading-[32px] font-semibold;
+  }
+
+  .text-h3 {
+    @apply text-[20px] leading-[28px] font-semibold;
+  }
+
+  .text-h4 {
+    @apply text-[18px] leading-[24px] font-semibold;
+  }
+
+  .text-lead {
+    @apply text-[16px] leading-[24px] font-medium;
+  }
+
+  .text-body {
+    @apply text-[14px] leading-[20px] font-regular;
+  }
+
+  .text-small {
+    @apply text-[12px] leading-[16px] font-regular;
+  }
+
+  /* Couleurs texte */
+  .text-primary {
+    @apply text-text-primary;
+  }
+
+  .text-secondary {
+    @apply text-text-secondary;
+  }
+
+  .text-disabled {
+    @apply text-text-disabled;
+  }
+
+  /* Backgrounds */
+  .bg-surface-primary {
+    @apply bg-surface-primary;
+  }
+
+  .bg-surface-secondary {
+    @apply bg-surface-secondary;
+  }
+
+  .bg-surface-tertiary {
+    @apply bg-surface-tertiary;
+  }
+
+  /* Borders */
+  .border-light {
+    @apply border border-border-light;
+  }
+
+  .border-medium {
+    @apply border border-border-medium;
+  }
+
+  /* Boutons */
+  .btn-primary {
+    @apply bg-primary-600 text-white rounded-lg px-4 py-2 font-medium
+           hover:bg-primary-700 focus:outline-none focus:ring-2
+           focus:ring-primary-500 focus:ring-offset-2
+           transition-colors duration-fast;
+  }
+
+  .btn-secondary {
+    @apply border border-primary-600 text-primary-600 bg-transparent
+           rounded-lg px-4 py-2 font-medium hover:bg-primary-50
+           focus:outline-none focus:ring-2 focus:ring-primary-500
+           focus:ring-offset-2 transition-colors duration-fast;
+  }
+
+  .btn-disabled {
+    @apply bg-gray-300 text-gray-500 rounded-lg px-4 py-2 font-medium
+           cursor-not-allowed;
+  }
+
+  /* Cartes */
+  .card {
+    @apply bg-white border-light rounded-xl shadow-sm;
+  }
+
+  /* Inputs */
+  .input {
+    @apply border border-border-light rounded-lg px-3 py-2
+           focus:outline-none focus:border-primary-500
+           focus:ring-2 focus:ring-primary-200 transition-all duration-fast;
+  }
+
+  /* Badges */
+  .badge {
+    @apply rounded-full px-3 py-1 text-small font-medium;
+  }
+
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Keyframes */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Focus states accessibles */
+  .focus-visible {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500
+           focus:ring-offset-2;
+  }
+
+  /* Grid responsive */
+  .grid-responsive {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+           gap-mobile lg:gap-desktop;
+  }
+}

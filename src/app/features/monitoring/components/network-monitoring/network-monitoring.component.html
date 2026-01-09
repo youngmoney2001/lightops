@@ -1,0 +1,260 @@
+<div class="network-monitoring p-6 space-y-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Monitoring Réseau LoRaWAN</h1>
+      <p class="text-gray-600 mt-1">Surveillance en temps réel des communications et performances réseau</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="refreshData()">
+      <mat-icon>refresh</mat-icon>
+      Actualiser
+    </button>
+  </div>
+
+  <!-- Performance Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <mat-card>
+      <mat-card-content>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">Taux de Perte</p>
+            <p class="text-2xl font-bold" [class]="getPacketLossColor(performanceMetrics.packetLossRate)">
+              {{ performanceMetrics.packetLossRate }}%
+            </p>
+          </div>
+          <mat-icon class="text-gray-400">signal_wifi_off</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">Taux de Succès</p>
+            <p class="text-2xl font-bold text-green-600">
+              {{ performanceMetrics.successRate }}%
+            </p>
+          </div>
+          <mat-icon class="text-green-400">check_circle</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">Latence Moyenne</p>
+            <p class="text-2xl font-bold" [class]="getLatencyColor(performanceMetrics.averageLatency)">
+              {{ performanceMetrics.averageLatency }}s
+            </p>
+          </div>
+          <mat-icon class="text-blue-400">timer</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">Disponibilité</p>
+            <p class="text-2xl font-bold text-green-600">
+              {{ performanceMetrics.uptime }}%
+            </p>
+          </div>
+          <mat-icon class="text-green-400">wifi</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Communications Table -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Communications Réseau</mat-card-title>
+      <mat-card-subtitle>Dernières transmissions reçues par les gateways</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="overflow-x-auto">
+        <table mat-table [dataSource]="communications$ | async" class="w-full">
+          <!-- Gateway ID Column -->
+          <ng-container matColumnDef="gatewayId">
+            <th mat-header-cell *matHeaderCellDef>Gateway ID</th>
+            <td mat-cell *matCellDef="let communication">
+              <div class="font-mono text-sm">
+                {{ communication.gatewayId }}
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- RSSI Column -->
+          <ng-container matColumnDef="rssi">
+            <th mat-header-cell *matHeaderCellDef>RSSI</th>
+            <td mat-cell *matCellDef="let communication">
+              <div class="flex items-center space-x-2">
+                <span [class]="(communication.rssi | signalStrength).color">
+                  {{ communication.rssi }}dB
+                </span>
+                <mat-icon [class]="(communication.rssi | signalStrength).color" class="text-sm">
+                  {{ (communication.rssi | signalStrength).icon }}
+                </mat-icon>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- SNR Column -->
+          <ng-container matColumnDef="snr">
+            <th mat-header-cell *matHeaderCellDef>SNR</th>
+            <td mat-cell *matCellDef="let communication">
+              <span class="font-mono">
+                {{ communication.snr }}dB
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Channel Column -->
+          <ng-container matColumnDef="channel">
+            <th mat-header-cell *matHeaderCellDef>Canal</th>
+            <td mat-cell *matCellDef="let communication">
+              <span class="font-mono">
+                {{ communication.channel }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- CRC Column -->
+          <ng-container matColumnDef="crc">
+            <th mat-header-cell *matHeaderCellDef>CRC</th>
+            <td mat-cell *matCellDef="let communication">
+              <mat-icon [class]="communication.crc ? 'text-green-600' : 'text-red-600'">
+                {{ communication.crc ? 'check_circle' : 'error' }}
+              </mat-icon>
+            </td>
+          </ng-container>
+
+          <!-- Latency Column -->
+          <ng-container matColumnDef="latency">
+            <th mat-header-cell *matHeaderCellDef>Latence</th>
+            <td mat-cell *matCellDef="let communication">
+              <span [class]="getLatencyColor(communication.latency)">
+                {{ communication.latency }}s
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- RF Analysis -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Modulation Parameters -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Paramètres de Modulation</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Bande passante:</span>
+            <span class="font-mono">{{ rfMetrics.bandwidth }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Facteur d'étalement:</span>
+            <span class="font-mono">{{ rfMetrics.spreadingFactor }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Taux de code:</span>
+            <span class="font-mono">{{ rfMetrics.codeRate }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Fréquence:</span>
+            <span class="font-mono">{{ rfMetrics.frequency }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Gateway Status -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>État des Gateways</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="space-y-3" *ngIf="gateways$ | async as gateways">
+          <div *ngFor="let gateway of gateways" class="flex items-center justify-between p-3 border rounded">
+            <div class="flex items-center space-x-3">
+              <mat-icon [class]="gateway.isOnline ? 'text-green-600' : 'text-red-600'">
+                {{ gateway.isOnline ? 'wifi' : 'wifi_off' }}
+              </mat-icon>
+              <div>
+                <p class="font-mono text-sm">{{ gateway.id }}</p>
+                <p class="text-xs text-gray-500">{{ gateway.latitude }}, {{ gateway.longitude }}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-medium">{{ gateway.isOnline ? 'En ligne' : 'Hors ligne' }}</p>
+              <p class="text-xs text-gray-500" *ngIf="gateway.lastSeen">
+                {{ gateway.lastSeen | timeAgo }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Network Health Indicators -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Indicateurs de Santé Réseau</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Packet Success Rate -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium">Taux de Succès Paquets</span>
+            <span class="text-sm text-gray-600">{{ performanceMetrics.successRate }}%</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="performanceMetrics.successRate"
+            color="primary">
+          </mat-progress-bar>
+        </div>
+
+        <!-- Network Latency -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium">Latence Réseau</span>
+            <span class="text-sm text-gray-600">{{ performanceMetrics.averageLatency }}s</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="Math.max(0, 100 - performanceMetrics.averageLatency * 20)"
+            color="accent">
+          </mat-progress-bar>
+        </div>
+
+        <!-- Network Uptime -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium">Disponibilité Réseau</span>
+            <span class="text-sm text-gray-600">{{ performanceMetrics.uptime }}%</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="performanceMetrics.uptime"
+            color="primary">
+          </mat-progress-bar>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

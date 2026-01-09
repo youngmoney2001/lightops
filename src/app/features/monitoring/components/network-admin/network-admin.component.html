@@ -1,0 +1,339 @@
+<div class="network-admin p-6 space-y-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Administration Réseau</h1>
+      <p class="text-gray-600 mt-1">Configuration et gestion du réseau ChirpStack LoRaWAN</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="refreshData()">
+      <mat-icon>refresh</mat-icon>
+      Actualiser
+    </button>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="flex justify-center items-center py-8">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span class="ml-4">Chargement...</span>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading">
+    <mat-tab-group [(selectedIndex)]="selectedTab">
+      <!-- Network Configuration -->
+      <mat-tab label="Configuration Réseau">
+        <div class="p-4 space-y-6">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Paramètres ChirpStack</mat-card-title>
+              <mat-card-subtitle>Configuration de la connexion au serveur ChirpStack</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <mat-form-field>
+                  <mat-label>URL du Serveur</mat-label>
+                  <input matInput [(ngModel)]="networkConfig.serverUrl" placeholder="https://chirpstack.example.com">
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Token API</mat-label>
+                  <input matInput [(ngModel)]="networkConfig.apiToken" type="password" placeholder="eyJhbGciOi...">
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Région</mat-label>
+                  <mat-select [(ngModel)]="networkConfig.region">
+                    <mat-option value="EU868">Europe 868MHz</mat-option>
+                    <mat-option value="US915">USA 915MHz</mat-option>
+                    <mat-option value="AU915">Australie 915MHz</mat-option>
+                    <mat-option value="AS923">Asie 923MHz</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Plan de Fréquences</mat-label>
+                  <mat-select [(ngModel)]="networkConfig.frequencyPlan">
+                    <mat-option value="EU_863_870_TTN">EU 863-870 TTN</mat-option>
+                    <mat-option value="US_902_928_FSB_1">US 902-928 FSB1</mat-option>
+                    <mat-option value="AU_915_928_FSB_1">AU 915-928 FSB1</mat-option>
+                    <mat-option value="AS_923_925">AS 923-925</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="flex space-x-4 mt-4">
+                <button mat-raised-button color="primary" (click)="saveNetworkConfig()">
+                  <mat-icon>save</mat-icon>
+                  Sauvegarder
+                </button>
+                <button mat-button (click)="testConnection()">
+                  <mat-icon>network_check</mat-icon>
+                  Tester Connexion
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tenant Management -->
+      <mat-tab label="Gestion des Tenants">
+        <div class="p-4 space-y-6">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Tenants ChirpStack</h2>
+            <button mat-raised-button color="primary" (click)="createTenant()">
+              <mat-icon>add</mat-icon>
+              Nouveau Tenant
+            </button>
+          </div>
+
+          <mat-card>
+            <mat-card-content>
+              <div class="overflow-x-auto">
+                <table mat-table [dataSource]="tenants$ | async" class="w-full">
+                  <!-- Name Column -->
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Nom</th>
+                    <td mat-cell *matCellDef="let tenant">{{ tenant.name }}</td>
+                  </ng-container>
+
+                  <!-- Description Column -->
+                  <ng-container matColumnDef="description">
+                    <th mat-header-cell *matHeaderCellDef>Description</th>
+                    <td mat-cell *matCellDef="let tenant">{{ tenant.description || 'N/A' }}</td>
+                  </ng-container>
+
+                  <!-- Created At Column -->
+                  <ng-container matColumnDef="createdAt">
+                    <th mat-header-cell *matHeaderCellDef>Créé le</th>
+                    <td mat-cell *matCellDef="let tenant">{{ tenant.createdAt | date:'short' }}</td>
+                  </ng-container>
+
+                  <!-- Device Count Column -->
+                  <ng-container matColumnDef="deviceCount">
+                    <th mat-header-cell *matHeaderCellDef>Appareils</th>
+                    <td mat-cell *matCellDef="let tenant">{{ tenant.deviceCount || 0 }}</td>
+                  </ng-container>
+
+                  <!-- Actions Column -->
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let tenant">
+                      <button mat-icon-button (click)="editTenant(tenant)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteTenant(tenant)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="tenantColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: tenantColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Application Management -->
+      <mat-tab label="Gestion des Applications">
+        <div class="p-4 space-y-6">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Applications ChirpStack</h2>
+            <button mat-raised-button color="primary" (click)="createApplication()">
+              <mat-icon>add</mat-icon>
+              Nouvelle Application
+            </button>
+          </div>
+
+          <mat-card>
+            <mat-card-content>
+              <div class="overflow-x-auto">
+                <table mat-table [dataSource]="applications$ | async" class="w-full">
+                  <!-- Name Column -->
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Nom</th>
+                    <td mat-cell *matCellDef="let app">{{ app.name }}</td>
+                  </ng-container>
+
+                  <!-- Description Column -->
+                  <ng-container matColumnDef="description">
+                    <th mat-header-cell *matHeaderCellDef>Description</th>
+                    <td mat-cell *matCellDef="let app">{{ app.description || 'N/A' }}</td>
+                  </ng-container>
+
+                  <!-- Tenant Name Column -->
+                  <ng-container matColumnDef="tenantName">
+                    <th mat-header-cell *matHeaderCellDef>Tenant</th>
+                    <td mat-cell *matCellDef="let app">{{ app.tenantName || 'N/A' }}</td>
+                  </ng-container>
+
+                  <!-- Device Count Column -->
+                  <ng-container matColumnDef="deviceCount">
+                    <th mat-header-cell *matHeaderCellDef>Appareils</th>
+                    <td mat-cell *matCellDef="let app">{{ app.deviceCount || 0 }}</td>
+                  </ng-container>
+
+                  <!-- Actions Column -->
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let app">
+                      <button mat-icon-button (click)="editApplication(app)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteApplication(app)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="applicationColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: applicationColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Gateway Management -->
+      <mat-tab label="Gestion des Passerelles">
+        <div class="p-4 space-y-6">
+          <!-- Gateway Registration Form -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Enregistrer une Passerelle</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <mat-form-field>
+                  <mat-label>ID Passerelle</mat-label>
+                  <input matInput [(ngModel)]="gatewayConfig.gatewayId" placeholder="0016C001F0000000">
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Nom</mat-label>
+                  <input matInput [(ngModel)]="gatewayConfig.name" placeholder="Gateway-001">
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Description</mat-label>
+                  <input matInput [(ngModel)]="gatewayConfig.description" placeholder="My Gateway">
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Puissance TX (dBm)</mat-label>
+                  <input matInput type="number" [(ngModel)]="gatewayConfig.txPower" placeholder="0">
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Latitude</mat-label>
+                  <input matInput type="number" [(ngModel)]="gatewayConfig.location.latitude" step="0.000001" placeholder="Latitude">
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Longitude</mat-label>
+                  <input matInput type="number" [(ngModel)]="gatewayConfig.location.longitude" step="0.000001" placeholder="Longitude">
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Altitude (m)</mat-label>
+                  <input matInput type="number" [(ngModel)]="gatewayConfig.location.altitude" placeholder="0">
+                </mat-form-field>
+              </div>
+
+              <div class="mt-4">
+                <button mat-raised-button color="primary" (click)="registerGateway()">
+                  <mat-icon>add</mat-icon>
+                  Enregistrer Passerelle
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Gateway List -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Passerelles Enregistrées</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="text-center py-8 text-gray-500">
+                <mat-icon class="text-4xl mb-4">router</mat-icon>
+                <p>Liste des passerelles à implémenter</p>
+                <p class="text-sm">Récupération des données depuis ChirpStack API</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Network Servers -->
+      <mat-tab label="Serveurs Réseau">
+        <div class="p-4 space-y-6">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Serveurs Réseau</h2>
+            <button mat-raised-button color="primary" (click)="addNetworkServer()">
+              <mat-icon>add</mat-icon>
+              Ajouter Serveur
+            </button>
+          </div>
+
+          <mat-card>
+            <mat-card-content>
+              <div class="overflow-x-auto">
+                <table mat-table [dataSource]="networkServers$ | async" class="w-full">
+                  <!-- Name Column -->
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Nom</th>
+                    <td mat-cell *matCellDef="let server">{{ server.name }}</td>
+                  </ng-container>
+
+                  <!-- Server Column -->
+                  <ng-container matColumnDef="server">
+                    <th mat-header-cell *matHeaderCellDef>Serveur</th>
+                    <td mat-cell *matCellDef="let server">{{ server.server }}</td>
+                  </ng-container>
+
+                  <!-- Region Column -->
+                  <ng-container matColumnDef="region">
+                    <th mat-header-cell *matHeaderCellDef>Région</th>
+                    <td mat-cell *matCellDef="let server">{{ server.region }}</td>
+                  </ng-container>
+
+                  <!-- Status Column -->
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Statut</th>
+                    <td mat-cell *matCellDef="let server">
+                      <mat-icon [class]="server.status === 'online' ? 'text-green-600' : 'text-red-600'">
+                        {{ server.status === 'online' ? 'check_circle' : 'error' }}
+                      </mat-icon>
+                      <span class="ml-2">{{ server.status === 'online' ? 'En ligne' : 'Hors ligne' }}</span>
+                    </td>
+                  </ng-container>
+
+                  <!-- Actions Column -->
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let server">
+                      <button mat-icon-button (click)="editNetworkServer(server)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteNetworkServer(server)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="serverColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: serverColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<div [ngClass]="containerClasses" class="notification-container">
+  @for (notification of notifications; track notification.id) {
+    <div [ngClass]="containerWidth">
+      <app-notification
+        [notification]="notification"
+        (close)="onCloseNotification($event)"
+      ></app-notification>
+    </div>
+  }
+</div>

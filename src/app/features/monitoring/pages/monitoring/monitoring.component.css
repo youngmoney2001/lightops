@@ -1,0 +1,111 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+.monitoring-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// Map container
+.map-container {
+  height: calc(100vh - 200px);
+  min-height: 500px;
+}
+
+// Card styles
+.monitoring-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200;
+  transition: all 0.3s ease;
+
+  &:hover {
+    @apply shadow-md;
+  }
+}
+
+// Status indicators
+.status-indicator {
+  @apply inline-block h-3 w-3 rounded-full mr-2;
+
+  &.online {
+    @apply bg-green-500;
+  }
+
+  &.offline {
+    @apply bg-red-500;
+  }
+
+  &.warning {
+    @apply bg-yellow-500;
+  }
+
+  &.maintenance {
+    @apply bg-blue-500;
+  }
+}
+
+// Quality badges
+.quality-badge {
+  @apply px-2 py-1 text-xs font-medium rounded-full;
+
+  &.excellent {
+    @apply bg-green-100 text-green-800;
+  }
+
+  &.good {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  &.moderate {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  &.poor {
+    @apply bg-red-100 text-red-800;
+  }
+}
+
+// Battery indicator
+.battery-indicator {
+  @apply inline-flex items-center px-2 py-1 rounded text-xs font-medium;
+
+  &.normal {
+    @apply bg-green-100 text-green-800;
+  }
+
+  &.low {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  &.critical {
+    @apply bg-red-100 text-red-800;
+  }
+}
